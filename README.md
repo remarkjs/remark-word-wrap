@@ -24,6 +24,7 @@ var result = remark.use(wrap, {width: 5}).process(markdown);
 Output:
 
 ```md
+
 Hello,
 world!
 ```
