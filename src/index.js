@@ -1,3 +1,5 @@
+import is from 'unist-util-is';
+import parents from 'unist-util-parents';
 import visit from 'unist-util-visit';
 
 function getWords (value) {
@@ -29,8 +31,19 @@ export default function attacher (remark, opts) {
 
             while (child < sub.children.length) {
                 current = sub.children[child];
-                if (current.type === 'link') {
-                    words = getWords(current.children[0].value);
+                if (is('break', current)) {
+                    len = 0;
+                    child ++;
+                }
+                if (is('image', current)) {
+                    len = len + current.src.length + (current.alt || '').length;
+                    child ++;
+                }
+                if (is('imageReference', current) ||is('footnoteReference', current)) {
+                    child ++;
+                }
+                if (current.node.value) {
+                    words = getWords(current.node.value);
                     lines = [[]];
                     pos = 0;
 
@@ -43,9 +56,15 @@ export default function attacher (remark, opts) {
                             lines[lines.length - 1].push(word);
                             len = len + word.length + 1;
                         } else {
-                            if (pos === 0) {
-                                sub.children[child - 1].value += '\n' + indent;
-                                lines[lines.length - 1].push(word);
+                            if (pos === 0 && current.parent && is('link', current.parent)) {
+                                let paragraph = current.parent.parent.node;
+                                let index = paragraph.children.indexOf(current.parent.node);
+                                if (index > 0) {
+                                    paragraph.children[index - 1].value += `\n${indent}`;
+                                    lines[lines.length - 1].push(word);
+                                } else {
+                                    lines[lines.length - 1].push([`${indent}${word}`]);
+                                }
                             } else {
                                 lines.push([`${indent}${word}`]);
                             }
@@ -53,44 +72,26 @@ export default function attacher (remark, opts) {
                         }
                         pos ++;
                     }
-                    
-                    current.children[0].value = joinWords(lines, newline);
 
-                    // Add extra padding for anchor delimiters; []()
-                    len = len + current.href.length + 4;
+                    current.node.value = joinWords(lines, newline);
                     child ++;
                 }
-                if (current.value) {
-                    words = getWords(current.value);
-                    lines = [[]];
-                    pos = 0;
-
-                    while (pos < words.length) {
-                        word = words[pos];
-                        if (len + word.length + 1 < width) {
-                            if (len === 0) {
-                                word = indent + word;
-                            }
-                            lines[lines.length - 1].push(word);
-                            len = len + word.length + 1;
-                        } else {
-                            lines.push([`${indent}${word}`]);
-                            len = word.length + 1;
-                        }
-                        pos ++;
-                    }
-
-                    current.value = joinWords(lines, newline);
-                    child ++;
-                }
-                if (current.children && current.type !== 'link') {
+                if (current.children) {
                     recurse(current);
+                    if (is('link', current)) {
+                        // Add extra padding for anchor delimiters; []()
+                        len = len + current.href.length + 4;
+                    }
+                    if (is('linkReference', current)) {
+                        // Add extra padding for identifier delimiters; [][]
+                        len = len + current.identifier.length + 4;
+                    }
                     child ++;
                 }
             }
         };
 
-        recurse(node);
+        recurse(parents(node));
     }
 
     return ast => visit(ast, visitor);
