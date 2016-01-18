@@ -29,6 +29,10 @@ export default function attacher (remark, opts) {
 
             while (child < sub.children.length) {
                 current = sub.children[child];
+                if (current.type === 'image') {
+                    len = len + current.src.length + (current.alt || '').length;
+                    child ++;
+                }
                 if (current.type === 'link') {
                     words = getWords(current.children[0].value);
                     lines = [[]];
