@@ -56,7 +56,7 @@ export default function attacher (remark, opts) {
                             lines[lines.length - 1].push(word);
                             len = len + word.length + 1;
                         } else {
-                            if (pos === 0 && current.parent && current.parent.type === 'link') {
+                            if (pos === 0 && current.parent && is('link', current.parent)) {
                                 let paragraph = current.parent.parent.node;
                                 let index = paragraph.children.indexOf(current.parent.node);
                                 if (index > 0) {
@@ -82,6 +82,10 @@ export default function attacher (remark, opts) {
                         // Add extra padding for anchor delimiters; []()
                         len = len + current.href.length + 4;
                     }
+                    if (is('linkReference', current)) {
+                        // Add extra padding for identifier delimiters; [][]
+                        len = len + current.identifier.length + 4;
+                    }
                     child ++;
                 }
             }
@@ -89,6 +93,11 @@ export default function attacher (remark, opts) {
 
         recurse(parents(node));
     }
+    
+    return ast => {
+        console.log(require('util').inspect(ast, false, null));
+        visit(ast, visitor);
+    };
 
-    return ast => visit(ast, visitor);
+    // return ast => visit(ast, visitor);
 }
