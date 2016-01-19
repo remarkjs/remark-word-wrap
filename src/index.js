@@ -1,4 +1,5 @@
 import is from 'unist-util-is';
+import parents from 'unist-util-parents';
 import visit from 'unist-util-visit';
 
 function getWords (value) {
@@ -41,8 +42,8 @@ export default function attacher (remark, opts) {
                 if (is('imageReference', current) ||is('footnoteReference', current)) {
                     child ++;
                 }
-                if (is('link', current)) {
-                    words = getWords(current.children[0].value);
+                if (current.node.value) {
+                    words = getWords(current.node.value);
                     lines = [[]];
                     pos = 0;
 
@@ -55,9 +56,15 @@ export default function attacher (remark, opts) {
                             lines[lines.length - 1].push(word);
                             len = len + word.length + 1;
                         } else {
-                            if (pos === 0) {
-                                sub.children[child - 1].value += '\n' + indent;
-                                lines[lines.length - 1].push(word);
+                            if (pos === 0 && current.parent && current.parent.type === 'link') {
+                                let paragraph = current.parent.parent.node;
+                                let index = paragraph.children.indexOf(current.parent.node);
+                                if (index > 0) {
+                                    paragraph.children[index - 1].value += `\n${indent}`;
+                                    lines[lines.length - 1].push(word);
+                                } else {
+                                    lines[lines.length - 1].push([`${indent}${word}`]);
+                                }
                             } else {
                                 lines.push([`${indent}${word}`]);
                             }
@@ -65,44 +72,22 @@ export default function attacher (remark, opts) {
                         }
                         pos ++;
                     }
-                    
-                    current.children[0].value = joinWords(lines, newline);
 
-                    // Add extra padding for anchor delimiters; []()
-                    len = len + current.href.length + 4;
+                    current.node.value = joinWords(lines, newline);
                     child ++;
                 }
-                if (current.value) {
-                    words = getWords(current.value);
-                    lines = [[]];
-                    pos = 0;
-
-                    while (pos < words.length) {
-                        word = words[pos];
-                        if (len + word.length + 1 < width) {
-                            if (len === 0) {
-                                word = indent + word;
-                            }
-                            lines[lines.length - 1].push(word);
-                            len = len + word.length + 1;
-                        } else {
-                            lines.push([`${indent}${word}`]);
-                            len = word.length + 1;
-                        }
-                        pos ++;
-                    }
-
-                    current.value = joinWords(lines, newline);
-                    child ++;
-                }
-                if (current.children && !is('link', current)) {
+                if (current.children) {
                     recurse(current);
+                    if (is('link', current)) {
+                        // Add extra padding for anchor delimiters; []()
+                        len = len + current.href.length + 4;
+                    }
                     child ++;
                 }
             }
         };
 
-        recurse(node);
+        recurse(parents(node));
     }
 
     return ast => visit(ast, visitor);
