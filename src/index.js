@@ -93,11 +93,6 @@ export default function attacher (remark, opts) {
 
         recurse(parents(node));
     }
-    
-    return ast => {
-        console.log(require('util').inspect(ast, false, null));
-        visit(ast, visitor);
-    };
 
-    // return ast => visit(ast, visitor);
+    return ast => visit(ast, visitor);
 }
