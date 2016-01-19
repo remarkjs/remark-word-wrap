@@ -1,3 +1,4 @@
+import is from 'unist-util-is';
 import visit from 'unist-util-visit';
 
 function getWords (value) {
@@ -29,11 +30,18 @@ export default function attacher (remark, opts) {
 
             while (child < sub.children.length) {
                 current = sub.children[child];
-                if (current.type === 'image') {
+                if (is('break', current)) {
+                    len = 0;
+                    child ++;
+                }
+                if (is('image', current)) {
                     len = len + current.src.length + (current.alt || '').length;
                     child ++;
                 }
-                if (current.type === 'link') {
+                if (is('imageReference', current) ||is('footnoteReference', current)) {
+                    child ++;
+                }
+                if (is('link', current)) {
                     words = getWords(current.children[0].value);
                     lines = [[]];
                     pos = 0;
@@ -87,7 +95,7 @@ export default function attacher (remark, opts) {
                     current.value = joinWords(lines, newline);
                     child ++;
                 }
-                if (current.children && current.type !== 'link') {
+                if (current.children && !is('link', current)) {
                     recurse(current);
                     child ++;
                 }

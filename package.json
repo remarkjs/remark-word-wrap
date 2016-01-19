@@ -30,6 +30,7 @@
     "remark-usage": "^2.1.0"
   },
   "dependencies": {
+    "unist-util-is": "^1.0.0",
     "unist-util-visit": "^1.0.0"
   },
   "keywords": [
