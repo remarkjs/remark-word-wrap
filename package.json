@@ -1,6 +1,6 @@
 {
   "name": "remark-word-wrap",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "description": "Wrap lines of Markdown to a specified width.",
   "main": "dist/index.js",
   "files": [
