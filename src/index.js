@@ -36,10 +36,10 @@ export default function attacher (remark, opts) {
                     child ++;
                 }
                 if (is('image', current)) {
-                    len = len + current.src.length + (current.alt || '').length;
+                    len = len + current.url.length + (current.alt || '').length;
                     child ++;
                 }
-                if (is('imageReference', current) ||is('footnoteReference', current)) {
+                if (is('imageReference', current) || is('footnoteReference', current)) {
                     child ++;
                 }
                 if (current.node.value) {
@@ -80,7 +80,7 @@ export default function attacher (remark, opts) {
                     recurse(current);
                     if (is('link', current)) {
                         // Add extra padding for anchor delimiters; []()
-                        len = len + current.href.length + 4;
+                        len = len + current.url.length + 4;
                     }
                     if (is('linkReference', current)) {
                         // Add extra padding for identifier delimiters; [][]
