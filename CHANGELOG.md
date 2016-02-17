@@ -1,3 +1,7 @@
+# 2.0.0
+
+* Updated for remark 4.x.
+
 # 1.0.1
 
 * Fixed an issue where the module went into an infinite loop on unknown nodes.
