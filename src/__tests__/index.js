@@ -22,6 +22,6 @@ Object.keys(specs).forEach(name => {
             commonmark: true,
             footnotes: true
         });
-        t.same(result, spec.expected);
+        t.deepEqual(result, spec.expected);
     });
 });
