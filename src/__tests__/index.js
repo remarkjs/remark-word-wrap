@@ -18,10 +18,10 @@ const specs = directory(base).reduce((tests, contents) => {
 Object.keys(specs).forEach(name => {
     const spec = specs[name];
     ava(name, t => {
-        const result = remark.use(wrap).process(spec.fixture, {
+        const {contents} = remark().use(wrap).process(spec.fixture, {
             commonmark: true,
             footnotes: true
         });
-        t.deepEqual(result, spec.expected);
+        t.deepEqual(contents, spec.expected);
     });
 });

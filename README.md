@@ -18,7 +18,7 @@ npm install remark-word-wrap
 var remark = require('remark');
 var wrap = require('remark-word-wrap');
 var markdown = 'Hello, world!';
-var result = remark.use(wrap, {width: 5}).process(markdown);
+var result = remark().use(wrap, {width: 5}).process(markdown);
 ```
 
 Output:
