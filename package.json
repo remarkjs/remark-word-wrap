@@ -28,7 +28,7 @@
     "nyc": "^6.0.0",
     "remark": "^4.1.0",
     "remark-heading-gap": "^2.0.0",
-    "remark-usage": "^3.0.0"
+    "remark-usage": "^4.0.0"
   },
   "dependencies": {
     "unist-util-is": "^1.0.0",
