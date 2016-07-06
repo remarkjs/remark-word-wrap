@@ -15,7 +15,7 @@ export default function attacher (remark, opts) {
         indent: '',
         newline: '\n',
         width: 72,
-        ...opts
+        ...opts,
     };
 
     function visitor (node) {

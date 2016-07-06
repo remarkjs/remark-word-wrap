@@ -1,8 +1,8 @@
+import {readdirSync as directory, readFileSync as file} from 'fs';
+import {join} from 'path';
 import ava from 'ava';
 import wrap from '..';
 import remark from 'remark';
-import {readdirSync as directory, readFileSync as file} from 'fs';
-import {join} from 'path';
 
 const base = join(__dirname, 'fixtures');
 
@@ -20,7 +20,7 @@ Object.keys(specs).forEach(name => {
     ava(name, t => {
         const {contents} = remark().use(wrap).process(spec.fixture, {
             commonmark: true,
-            footnotes: true
+            footnotes: true,
         });
         t.deepEqual(contents, spec.expected);
     });
