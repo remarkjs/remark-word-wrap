@@ -36,7 +36,7 @@
     "remark-usage": "^4.0.0"
   },
   "dependencies": {
-    "unist-util-is": "^1.0.0",
+    "unist-util-is": "^2.0.0",
     "unist-util-parents": "^0.1.2",
     "unist-util-visit": "^1.0.1"
   },
