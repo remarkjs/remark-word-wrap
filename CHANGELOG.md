@@ -1,3 +1,7 @@
+# 2.0.2
+
+* Upgraded unist-util-is to v2.0.0.
+
 # 2.0.1
 
 * Upgraded to remark 5.x, this module will work the same using either version.
