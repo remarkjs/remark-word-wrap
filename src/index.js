@@ -27,10 +27,13 @@ export default function attacher (remark, opts) {
 
         let recurse = function (sub) {
             let child = 0;
-            let current, lines, pos, words, word;
+            let current, lines, pos, words, word, prevSibling;
+            let isWord = /\w/;
+            let isSpace = /\s/;
 
             while (child < sub.children.length) {
                 current = sub.children[child];
+                prevSibling = sub.children[Math.max(child-1, 0)];
                 if (is('break', current)) {
                     len = 0;
                     child ++;
@@ -55,19 +58,27 @@ export default function attacher (remark, opts) {
                             }
                             lines[lines.length - 1].push(word);
                             len = len + word.length + 1;
-                        } else {
-                            if (pos === 0 && current.parent && is('link', current.parent)) {
-                                let paragraph = current.parent.parent.node;
-                                let index = paragraph.children.indexOf(current.parent.node);
-                                if (index > 0) {
-                                    paragraph.children[index - 1].value += `\n${indent}`;
-                                    lines[lines.length - 1].push(word);
-                                } else {
-                                    lines[lines.length - 1].push([`${indent}${word}`]);
-                                }
+                        } else if (pos === 0 && current.parent && is('link', current.parent)) {
+                            let paragraph = current.parent.parent.node;
+                            let index = paragraph.children.indexOf(current.parent.node);
+                            if (index > 0) {
+                                paragraph.children[index - 1].value += `\n${indent}`;
+                                lines[lines.length - 1].push(word);
                             } else {
-                                lines.push([`${indent}${word}`]);
+                                lines[lines.length - 1].push([`${indent}${word}`]);
                             }
+                            len = word.length + 1;
+                        } else if (
+                            (len + word.length +1 >= width)
+                            && prevSibling && !is('text', prevSibling)
+                            && !(isWord.test(word) || isSpace.test(word) || !word)) {
+                            // If the current line is too long,
+                            // but the previous sibling was not text,
+                            // and the next word is not a word (e.g. punctuation),
+                            // don't create a new line for it.
+                            lines[lines.length - 1].push(word);
+                        } else {
+                            lines.push([`${indent}${word}`]);
                             len = word.length + 1;
                         }
                         pos ++;
